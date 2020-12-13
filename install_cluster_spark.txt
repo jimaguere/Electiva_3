@@ -1,0 +1,58 @@
+https://www.awseducate.com/signin/SiteLogin
+
+paso 1  actualizar sistema
+
+	sudo apt update
+	sudo apt -y upgrade
+
+paso 2	instalar java
+
+	sudo apt install default-jdk
+	java -version
+
+paso 3  descargar spark
+	cd /opt/
+	sudo curl -O https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
+
+paso 4 descomprimir spark
+
+	sudo tar xvf spark-3.0.1-bin-hadoop2.7.tgz
+
+paso 4 cambiar propietario carpeta spark
+
+	sudo chown ubuntu:ubuntu -R spark-3.0.1-bin-hadoop2.7
+
+paso 5 variables de entorno
+
+	nano ~/.bashrc 
+
+
+		export SPARK_HOME=/opt/spark-3.0.1-bin-hadoop2.7
+		export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+
+paso 6 aplicar cambios 
+
+	source ~/.bashrc
+
+paso 7 agrefar jupyter con pyspark
+
+	nano ~/.bashrc 
+	
+		export PYSPARK_DRIVER_PYTHON=jupyter 
+		export jupyter PYSPARK_DRIVER_PYTHON_OPTS ='notebook'
+
+	source ~/.bashrc
+
+paso 8 configurar master
+	cd /opt/spark-3.0.1-bin-hadoop2.7/conf
+	cp spark-env.sh.template ./spark-env.sh
+
+ss -tunelp | grep 8080
+
+
+
+
+
+
+
+
