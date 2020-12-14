@@ -34,16 +34,30 @@ paso 6 aplicar cambios
 
 	source ~/.bashrc
 
-paso 7 agrefar jupyter con pyspark
+paso 7 instalar anaconda 
+	cd /opt 
+	sudo mkdir anaconda/
+	sudo chown ubuntu:ubuntu -R anaconda/
+	sudo curl -O https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
+	sha256sum Anaconda3-2020.11-Linux-ppc64le.sh
+	bash Anaconda3-2020.11-Linux-x86_64.sh
+	source ~/.bashrc
+	#salir batch
+	#inciar
+	#conda create --name myspark
+	#conda activate myspark
+
+
+paso 8 agregar jupyter con pyspark
 
 	nano ~/.bashrc 
 	
-		export PYSPARK_DRIVER_PYTHON=jupyter 
-		export jupyter PYSPARK_DRIVER_PYTHON_OPTS ='notebook'
+		export PYSPARK_DRIVER_PYTHON=jupyter
+		export PYSPARK_DRIVER_PYTHON_OPTS='notebook'
 
 	source ~/.bashrc
 
-paso 8 configurar master
+paso 9 configurar master
 	cd /opt/spark-3.0.1-bin-hadoop2.7/conf
 	cp spark-env.sh.template ./spark-env.sh
 
@@ -51,8 +65,9 @@ ss -tunelp | grep 8080
 
 
 
+from pyspark import SparkConf, SparkContext
+from pyspark.sql import SparkSession
 
-
-
-
+sc = SparkContext.getOrCreate()
+spark = SparkSession(sc)
 
