@@ -1,0 +1,59 @@
+from flask import Flask
+from flask_restplus import Resource, Api
+from flask import jsonify
+from flask import request
+import json
+import pyodbc
+from flask import jsonify
+from flask import Response
+
+from pyspark import SparkConf, SparkContext
+from pyspark.sql import SparkSession
+
+import joblib
+from pyspark.ml.classification import DecisionTreeClassificationModel
+from pyspark.ml.feature import VectorAssembler
+
+
+
+
+def imputar_nulos(df):
+    complete_dict = dict()
+    for col_name in df.dtypes:
+        if col_name[1]=='string':
+            complete_dict[col_name[0]]="DESCONOCIDO"
+        else:
+            complete_dict[col_name[0]]=-99    
+    df_ml_complete = df.na.fill(complete_dict)      
+    return (df_ml_complete)
+
+import findspark
+findspark.init() 
+sparkConf = SparkConf().setAppName("endpoint_desercion")
+sc = SparkContext(conf=sparkConf)
+spark = SparkSession(sc)
+
+app = Flask(__name__)
+@app.route('/endpoint_desercion', methods=['GET'])
+def desercion():
+    data = request.get_json() #leo el json 
+    #spark = SparkSession.builder.appName('endpoint_desercion').getOrCreate() #cargo spark
+    #leo el modelo entrenado y variables
+    modelo=DecisionTreeClassificationModel.load('D:\\CLASES\\ELECTIVA 3 BigData\\Taller_final\\modelo_arbol_99')
+    important_features=joblib.load('D:\\CLASES\\ELECTIVA 3 BigData\\Taller_final\\columnas_99.dat')
+    
+    #cargo el json a un dataframe rdd
+    df = spark.read.json(spark.sc.parallelize([data]))
+    #imputo nulos
+    df_complete=imputar_nulos(df)
+    #creo el ensamblador + variables
+    assembler_new = VectorAssembler(inputCols=important_features, outputCol='features')
+    evaluar = assembler_new.transform(df_complete)
+    #realizo la prediccion
+    df_pred = modelo.transform(evaluar)
+    pred_pd_full = df_pred.select(['prediction', 'probability']).toPandas()
+    return (json.dumps(json.loads(pred_pd_full.to_json(orient='records')), indent=2))
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8889)
